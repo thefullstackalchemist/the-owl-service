@@ -1,69 +1,72 @@
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 export default function Navbar() {
+  const isLoggedIn = false; // You can replace this with your actual auth logic
+
   return (
-    <nav className="bg-white shadow-md px-6 py-4 flex items-center justify-between">
-      {/* Logo Section */}
-      <div className="text-xl font-bold">
-        <Link href="/">MyApp</Link>
-      </div>
+    <nav className="fixed top-0 w-full bg-gradient-to-r from-gray-900 to-gray-800 shadow-lg z-50 navbar">
+      <div className="container mx-auto flex items-center justify-between py-4 px-6">
+        {/* Logo */}
+        <motion.div
+          className="text-3xl font-bold text-gray-200 hover:text-blue-400 transition-all"
+          whileHover={{ scale: 1.1 }}
+        >
+          <Link href="/">OWL</Link>
+        </motion.div>
 
-      {/* Navigation Links */}
-      <div className="hidden md:flex space-x-6">
-        <Link href="/dashboard" className="text-gray-700 hover:text-gray-900 transition">
-          Dashboard
-        </Link>
-        <Link href="/ledger" className="text-gray-700 hover:text-gray-900 transition">
-          Ledger
-        </Link>
-        <Link href="/accounts" className="text-gray-700 hover:text-gray-900 transition">
-          Accounts
-        </Link>
-        <Link href="/admin" className="text-gray-700 hover:text-gray-900 transition">
-          Admin
-        </Link>
-      </div>
+        {/* Navigation Links and Action Buttons */}
+        <div className="flex items-center justify-end space-x-6 ml-auto">
+          {/* Links */}
+          {["Ledger", "Accounts", "Admin"].map((link) => (
+            <Link
+              key={link}
+              href={`/${link.toLowerCase()}`}
+              className="text-gray-200 text-lg font-medium hover:text-blue-400 transition duration-200 gap-7"
+            >
+              {link}
+            </Link>
+          ))}
 
-      {/* Action Buttons */}
-      <div className="flex items-center space-x-4">
-        <Button variant="ghost" size="sm">
-          Login
-        </Button>
-        <Button variant="primary" size="sm">
-          Register
-        </Button>
-
-        {/* Mobile Menu Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="md:hidden">
-              ☰
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="md:hidden">
-            <DropdownMenuItem>
-              <Link href="/dashboard">Dashboard</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Link href="/ledger">Ledger</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Link href="/accounts">Accounts</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Link href="/admin">Admin</Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          {/* Action Buttons */}
+          <div className="flex items-center space-x-4 ml-6">
+            {isLoggedIn ? (
+              <Link href="/dashboard">
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  className="text-gray-200 border-2 border-blue-500 hover:bg-blue-500 hover:text-white transition duration-300"
+                >
+                  Dashboard
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  className="text-gray-200 border-2 border-blue-500 hover:bg-blue-500 hover:text-white transition duration-300"
+                >
+                  Login
+                </Button>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-semibold transition duration-300 px-6"
+                >
+                  Register
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </nav>
   );

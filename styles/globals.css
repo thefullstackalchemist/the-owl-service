@@ -118,3 +118,27 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000; /* Ensure it stays above other content */
+  background-color: transparent; /* Background to cover content underneath */
+  transition: background-color 0.3s ease;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1); /* Optional shadow for better visibility */
+}
+
+.nav-list {
+  display: flex;
+  justify-content: space-around;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-list a {
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+}
