@@ -26,32 +26,32 @@ import {
 const items = [
   {
     title: "Dashboard",
-    url: "#",
+    url: "/dashboard",
     icon: LayoutDashboard,
   },
   {
     title: "Ledger",
-    url: "#",
+    url: "/ledger",
     icon: FileSpreadsheet,
   },
   {
     title: "Accounts",
-    url: "#",
+    url: "/accounts",
     icon: Landmark,
   },
   {
     title: "Investments",
-    url: "#",
+    url: "/investments",
     icon: HandCoins,
   },
   {
     title: "Buckets",
-    url: "#",
+    url: "/buckets",
     icon: PiggyBank,
   },
   {
     title: "Settings",
-    url: "#",
+    url: "settings",
     icon: Settings,
   },
 ];
