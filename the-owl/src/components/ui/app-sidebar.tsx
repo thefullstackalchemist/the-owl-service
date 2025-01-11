@@ -1,13 +1,9 @@
 import {
-  Calendar,
   FileSpreadsheet,
   HandCoins,
-  Home,
-  Inbox,
   Landmark,
   LayoutDashboard,
   PiggyBank,
-  Search,
   Settings,
 } from "lucide-react";
 
