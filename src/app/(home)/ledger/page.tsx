@@ -148,69 +148,7 @@ export default function LedgerPage() {
                 },
               ]
             },
-            {
-              id: "user2",
-              name: "Jane Smith",
-              accounts: [
-                {
-                  id: 3,
-                  userId: "user2",
-                  name: "Personal Account",
-                  transactions: [
-                    {
-                      from_acc: 3,
-                      to_acc: 1,
-                      amount: 2000.00,
-                      txn_datetime: "2024-01-19T11:30:00",
-                      type: "Credit",
-                      category: "Freelance Income"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              id: "user3",
-              name: "Alex Johnson",
-              accounts: [
-                {
-                  id: 3,
-                  userId: "user2",
-                  name: "Personal Account",
-                  transactions: [
-                    {
-                      from_acc: 3,
-                      to_acc: 1,
-                      amount: 2000.00,
-                      txn_datetime: "2024-01-19T11:30:00",
-                      type: "Credit",
-                      category: "Freelance Income"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              id: "user4",
-              name: "Sarah Wilson",
-              accounts: [
-                {
-                  id: 3,
-                  userId: "user2",
-                  name: "Personal Account",
-                  transactions: [
-                    {
-                      from_acc: 3,
-                      to_acc: 1,
-                      amount: 2000.00,
-                      txn_datetime: "2024-01-19T11:30:00",
-                      type: "Credit",
-                      category: "Freelance Income"
-                    }
-                  ]
-                }
-              ]
-            }
+
           ]
         };
         setLedgerData(mockData);
@@ -272,7 +210,7 @@ export default function LedgerPage() {
         className="max-w-6xl mx-auto space-y-8"
       >
         <div className="flex mb-8">
-          <div className="w-1/4 bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mr-8 backdrop-blur-lg backdrop-filter">
+          {/* <div className="w-1/4 bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mr-8 backdrop-blur-lg backdrop-filter">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Users</h2>
             <div className="mb-4">
               <input
@@ -323,9 +261,9 @@ export default function LedgerPage() {
                 <ChevronRight className="w-5 h-5" />
               </button>
             </div>
-          </div>
+          </div> */}
 
-          <div className="w-3/4">
+          <div className="w-screen ">
             <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
               <div className="flex items-center justify-between mb-8">
                 <div>
@@ -365,7 +303,7 @@ export default function LedgerPage() {
                       mode="range"
                       selected={dateRange}
                       onSelect={(range) => setDateRange(range)}
-                      numberOfMonths={2}
+                      numberOfMonths={1}
                     />
                   </PopoverContent>
                 </Popover>
@@ -388,7 +326,8 @@ export default function LedgerPage() {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-gray-50">
-                      <TableHead className="font-semibold">Account</TableHead>
+                      <TableHead className="font-semibold">From</TableHead>
+                      <TableHead className="font-semibold">to</TableHead>
                       <TableHead className="font-semibold">Amount</TableHead>
                       <TableHead className="font-semibold">Category</TableHead>
                       <TableHead className="font-semibold">Type</TableHead>
@@ -402,6 +341,7 @@ export default function LedgerPage() {
                       ).map((transaction, idx) => (
                         <TableRow key={idx} className="hover:bg-gray-50 transition-colors">
                           <TableCell>{`Account #${transaction.from_acc}`}</TableCell>
+                          <TableCell>{`Account #${transaction.to_acc}`}</TableCell>
                           <TableCell className={transaction.amount >= 0 ? "text-green-600" : "text-red-600"}>
                             {transaction.amount.toLocaleString('en-US', { style: 'currency', currency: 'INR' })}
                           </TableCell>
