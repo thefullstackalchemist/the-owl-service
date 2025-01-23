@@ -21,6 +21,7 @@ export default function NewBankAccountForm() {
     bankName: "",
     ifsc: "",
     remarks: "",
+    placeholder: "This is a placeholder",
   });
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -34,7 +35,7 @@ export default function NewBankAccountForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-5">
       {" "}
       <div>
         {" "}
@@ -106,7 +107,7 @@ export default function NewBankAccountForm() {
           onChange={handleChange}
         />{" "}
       </div>{" "}
-      <button type="submit" className="btn-primary">
+      <button type="submit" className="button w-full bg-blue-500 hover:bg-blue-500/90 transition-colors text-white">
         {" "}
         Submit{" "}
       </button>{" "}
