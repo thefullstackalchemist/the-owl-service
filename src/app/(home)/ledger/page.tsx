@@ -41,13 +41,13 @@ interface User {
 export default function LedgerPage() {
   const [expandedAccount, setExpandedAccount] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [dateRange, setDateRange] = useState<{
-    from: Date | undefined;
-    to: Date | undefined;
-  }>({
-    from: undefined,
-    to: undefined,
+  const [userSearchTerm, setUserSearchTerm] = useState("");
+
+  const [dateRange, setDateRange] = useState<{ from: Date | null; to: Date | null }>({
+    from: null,
+    to: null,
   });
+  
   const [selectedType, setSelectedType] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [ledgerData, setLedgerData] = useState<{ users: User[] } | null>(null);
@@ -95,6 +95,46 @@ export default function LedgerPage() {
                       txn_datetime: "2024-01-17T09:15:00",
                       type: "Credit",
                       category: "Business Income"
+                    },
+                    {
+                      from_acc: 2,
+                      to_acc: 5,
+                      amount: -500.00,
+                      txn_datetime: "2024-01-18T16:45:00",
+                      type: "Debit",
+                      category: "Utility Bills"
+                    },
+                    {
+                      from_acc: 2,
+                      to_acc: 5,
+                      amount: -500.00,
+                      txn_datetime: "2024-01-18T16:45:00",
+                      type: "Debit",
+                      category: "Utility Bills"
+                    },
+                    {
+                      from_acc: 2,
+                      to_acc: 5,
+                      amount: -500.00,
+                      txn_datetime: "2024-01-18T16:45:00",
+                      type: "Debit",
+                      category: "Utility Bills"
+                    },
+                    {
+                      from_acc: 2,
+                      to_acc: 5,
+                      amount: -500.00,
+                      txn_datetime: "2024-01-18T16:45:00",
+                      type: "Debit",
+                      category: "Utility Bills"
+                    },
+                    {
+                      from_acc: 2,
+                      to_acc: 5,
+                      amount: -500.00,
+                      txn_datetime: "2024-01-18T16:45:00",
+                      type: "Debit",
+                      category: "Utility Bills"
                     },
                     {
                       from_acc: 2,
@@ -202,8 +242,9 @@ export default function LedgerPage() {
       const matchesType = selectedType === "all" || transaction.type === selectedType;
       const matchesCategory = selectedCategory === "all" || transaction.category === selectedCategory;
       const transactionDate = new Date(transaction.txn_datetime);
-      const matchesDate = !dateRange.from || !dateRange.to || 
-        (transactionDate >= dateRange.from && transactionDate <= dateRange.to);
+      const matchesDate =
+        (!dateRange?.from || transactionDate >= dateRange.from) &&
+        (!dateRange?.to || transactionDate <= dateRange.to);
       return matchesSearch && matchesType && matchesCategory && matchesDate;
     });
   };
@@ -233,8 +274,18 @@ export default function LedgerPage() {
         <div className="flex mb-8">
           <div className="w-1/4 bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mr-8 backdrop-blur-lg backdrop-filter">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Users</h2>
+            <div className="mb-4">
+              <input
+                type="text"
+                placeholder="Search users..."
+                className="w-full px-4 py-2 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                onChange={(e) => setUserSearchTerm(e.target.value)}
+              />
+            </div>
             <ul className="space-y-3">
-              {paginateUsers(ledgerData.users).map((user) => (
+              {paginateUsers(ledgerData.users.filter(user => 
+                user.name.toLowerCase().includes(userSearchTerm.toLowerCase())
+              )).map((user) => (
                 <motion.li
                   key={user.id}
                   whileHover={{ scale: 1.02 }}
@@ -304,20 +355,21 @@ export default function LedgerPage() {
                   <PopoverTrigger asChild>
                     <Button variant="outline" className="w-full justify-start rounded-xl">
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateRange.from
+                      {dateRange?.from
                         ? `${format(dateRange.from, "PPP")} - ${format(dateRange.to || dateRange.from, "PPP")}`
-                        : "Select Date Range"}
+                        : "Select a date range"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
+                  <PopoverContent className="w-auto p-4 bg-white rounded-lg shadow-md">
                     <Calendar
                       mode="range"
                       selected={dateRange}
-                      onSelect={setDateRange}
-                      className="rounded-lg"
+                      onSelect={(range) => setDateRange(range)}
+                      numberOfMonths={2}
                     />
                   </PopoverContent>
                 </Popover>
+
                 <select
                   className="px-4 py-2 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 outline-none"
                   value={selectedCategory}
@@ -366,6 +418,25 @@ export default function LedgerPage() {
                       ))}
                   </TableBody>
                 </Table>
+              </div>
+              <div className="flex items-center justify-center mt-6 space-x-4">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <span className="text-sm text-gray-600">
+                  {currentPage} / {Math.ceil(filterTransactions(currentUser?.accounts.flatMap(account => account.transactions) || []).length / transactionsPerPage)}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filterTransactions(currentUser?.accounts.flatMap(account => account.transactions) || []).length / transactionsPerPage)))}
+                  disabled={currentPage === Math.ceil(filterTransactions(currentUser?.accounts.flatMap(account => account.transactions) || []).length / transactionsPerPage)}
+                  className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
               </div>
             </div>
           </div>
