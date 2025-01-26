@@ -1,52 +1,49 @@
 import sqlite3 from "sqlite3";
-import path from "path";
 
 class DatabaseManager {
-    private static instance: DatabaseManager;
-    private db: sqlite3.Database;
+  private static instance: DatabaseManager;
+  private db: sqlite3.Database;
 
-    private constructor() {
-        // Define the database file path relative to the project root
-        const filename: string = path.resolve(process.cwd(), process.env.DB_FILE_PATH ?? "./database.db");
+  private constructor() {
+    // Use an in-memory database for Edge functions
+    this.db = new sqlite3.Database(":memory:", (err) => {
+      if (err) {
+        console.error("Error opening in-memory database:", err.message);
+      } else {
+        console.log("Connected to the in-memory SQLite database.");
+      }
+    });
+  }
 
-        // Initialize the database connection
-        this.db = new sqlite3.Database(filename, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
-            if (err) {
-                console.error("Error opening database:", err.message);
-            } else {
-                console.log("Connected to the SQLite database:", filename);
-            }
-        });
+  public static getInstance(): DatabaseManager {
+    if (!DatabaseManager.instance) {
+      DatabaseManager.instance = new DatabaseManager();
     }
+    return DatabaseManager.instance;
+  }
 
-    public static getInstance(): DatabaseManager {
-        if (!DatabaseManager.instance) {
-            DatabaseManager.instance = new DatabaseManager();
+  public executeQuery(query: string, params: any[] = []): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.db.all(query, params, (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
         }
-        return DatabaseManager.instance;
-    }
+      });
+    });
+  }
 
-    public executeQuery(query: string, params: any[] = []): Promise<any> {
-        return new Promise((resolve, reject) => {
-            this.db.all(query, params, (err, rows) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(rows);
-                }
-            });
-        });
-    }
-
-    public closeConnection(): void {
-        this.db.close((err) => {
-            if (err) {
-                console.error("Error closing database:", err.message);
-            } else {
-                console.log("Closed the database connection.");
-            }
-        });
-    }
+  // New method to close the in-memory database connection
+  public closeConnection(): void {
+    this.db.close((err) => {
+      if (err) {
+        console.error("Error closing database:", err.message);
+      } else {
+        console.log("In-memory database connection closed.");
+      }
+    });
+  }
 }
 
 export default DatabaseManager;
