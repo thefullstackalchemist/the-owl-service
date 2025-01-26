@@ -13,8 +13,15 @@ import Ledger from "@/services/Models/Ledger";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Transaction {
   from_acc: number;
@@ -29,10 +36,10 @@ export default function LedgerPage() {
     from: null,
     to: null,
   });
-  
-  const [ledgerData, setLedgerData] = useState<Transaction[] | null>(null);
+  const [pageSize, setPageSize] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
-  const transactionsPerPage = 5;
+  const [accountFilter, setAccountFilter] = useState<string>("all");
+  const [ledgerData, setLedgerData] = useState<Transaction[] | null>(null);
 
   useEffect(() => {
     const fetchLedgerData = async () => {
@@ -49,7 +56,6 @@ export default function LedgerPage() {
           { from_acc: 2, to_acc: 5, amount: -500.00, txn_datetime: "2024-01-18T16:45:00" },
           { from_acc: 2, to_acc: 5, amount: -500.00, txn_datetime: "2024-01-18T16:45:00" },
         ];
-    
         setLedgerData(mockData);
       } catch (error) {
         console.error("Error fetching ledger data:", error);
@@ -67,21 +73,32 @@ export default function LedgerPage() {
 
   const filterTransactions = (transactions: Transaction[]) => {
     return transactions.filter(transaction => {
-      const matchesSearch = transaction.amount.toString().includes(searchTerm);
+      const matchesSearch = 
+        transaction.from_acc.toString().includes(searchTerm) ||
+        transaction.to_acc.toString().includes(searchTerm) ||
+        transaction.amount.toString().includes(searchTerm);
       const transactionDate = new Date(transaction.txn_datetime);
       const matchesDate =
         (!dateRange?.from || transactionDate >= dateRange.from) &&
         (!dateRange?.to || transactionDate <= dateRange.to);
-      return matchesSearch && matchesDate;
+      const matchesAccount = 
+        accountFilter === "all" || 
+        transaction.from_acc.toString() === accountFilter ||
+        transaction.to_acc.toString() === accountFilter;
+      return matchesSearch && matchesDate && matchesAccount;
     });
   };
 
   const paginateTransactions = (transactions: Transaction[]) => {
     const filteredTransactions = filterTransactions(transactions);
-    const indexOfLastTransaction = currentPage * transactionsPerPage;
-    const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
+    const indexOfLastTransaction = currentPage * pageSize;
+    const indexOfFirstTransaction = indexOfLastTransaction - pageSize;
     return filteredTransactions.slice(indexOfFirstTransaction, indexOfLastTransaction);
   };
+
+  const uniqueAccounts = Array.from(new Set(
+    ledgerData.flatMap(t => [t.from_acc, t.to_acc])
+  )).sort((a, b) => a - b);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-2 sm:p-4 md:p-6 lg:p-8">
@@ -100,7 +117,7 @@ export default function LedgerPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 lg:gap-6 mb-4 sm:mb-6 lg:mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6 mb-4 sm:mb-6 lg:mb-8">
                 <input
                   type="text"
                   placeholder="Search transactions..."
@@ -109,6 +126,20 @@ export default function LedgerPage() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 
+                <Select value={accountFilter} onValueChange={setAccountFilter}>
+                  <SelectTrigger className="w-full rounded-xl">
+                    <SelectValue placeholder="Filter by account" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Accounts</SelectItem>
+                    {uniqueAccounts.map((acc) => (
+                      <SelectItem key={acc} value={acc.toString()}>
+                        Account #{acc}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="outline" className="w-full justify-start text-xs sm:text-sm md:text-base lg:text-lg rounded-xl">
@@ -122,12 +153,25 @@ export default function LedgerPage() {
                     <Calendar
                       mode="range"
                       selected={dateRange}
-                      onSelect={(range) => setDateRange(range)}
+                      onSelect={(range: any) => setDateRange(range)}
                       numberOfMonths={1}
                       className="text-xs sm:text-sm md:text-base lg:text-lg"
                     />
                   </PopoverContent>
                 </Popover>
+
+                <Select value={pageSize.toString()} onValueChange={(value) => setPageSize(Number(value))}>
+                  <SelectTrigger className="w-full rounded-xl">
+                    <SelectValue placeholder="Rows per page" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[5, 10, 20, 50].map((size) => (
+                      <SelectItem key={size} value={size.toString()}>
+                        {size} rows
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="rounded-xl overflow-x-auto border border-gray-100">
@@ -135,7 +179,7 @@ export default function LedgerPage() {
                   <TableHeader>
                     <TableRow className="bg-gray-50">
                       <TableHead className="text-xs sm:text-sm md:text-base lg:text-lg font-semibold whitespace-nowrap p-2 sm:p-4">From</TableHead>
-                      <TableHead className="text-xs sm:text-sm md:text-base lg:text-lg font-semibold whitespace-nowrap p-2 sm:p-4">to</TableHead>
+                      <TableHead className="text-xs sm:text-sm md:text-base lg:text-lg font-semibold whitespace-nowrap p-2 sm:p-4">To</TableHead>
                       <TableHead className="text-xs sm:text-sm md:text-base lg:text-lg font-semibold whitespace-nowrap p-2 sm:p-4">Amount</TableHead>
                       <TableHead className="text-xs sm:text-sm md:text-base lg:text-lg font-semibold whitespace-nowrap p-2 sm:p-4">Date</TableHead>
                     </TableRow>
@@ -154,24 +198,28 @@ export default function LedgerPage() {
                   </TableBody>
                 </Table>
               </div>
-              <div className="flex items-center justify-center mt-4 sm:mt-6 lg:mt-8 space-x-2 sm:space-x-4 lg:space-x-6">
-                <button
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                  className="p-1 sm:p-2 lg:p-3 rounded-lg hover:bg-gray-100 disabled:opacity-50"
-                >
-                  <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
-                </button>
-                <span className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-600">
-                  {currentPage} / {Math.ceil(filterTransactions(ledgerData).length / transactionsPerPage)}
-                </span>
-                <button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filterTransactions(ledgerData).length / transactionsPerPage)))}
-                  disabled={currentPage === Math.ceil(filterTransactions(ledgerData).length / transactionsPerPage)}
-                  className="p-1 sm:p-2 lg:p-3 rounded-lg hover:bg-gray-100 disabled:opacity-50"
-                >
-                  <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
-                </button>
+              <div className="flex items-center justify-between mt-4">
+                <div className="text-sm text-gray-500">
+                  Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, filterTransactions(ledgerData).length)} of {filterTransactions(ledgerData).length} entries
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filterTransactions(ledgerData).length / pageSize)))}
+                    disabled={currentPage === Math.ceil(filterTransactions(ledgerData).length / pageSize)}
+                  >
+                    Next
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
