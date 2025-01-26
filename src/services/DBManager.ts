@@ -11,6 +11,7 @@ class DatabaseManager {
 
     private constructor() {
         const filename: string = process.env.DB_FILE_PATH ?? '';
+        console.dir(filename);
         this.db = new sqlite3.Database(filename, sqlite3.OPEN_READWRITE, (err) => {
             if (err) {
                 console.error("Error opening database:", err.message);
