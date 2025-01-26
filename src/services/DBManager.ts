@@ -1,7 +1,6 @@
 import sqlite3 from "sqlite3";
 import path from "path";
 import fs from "fs";
-import os from "os";
 
 /**
  * DatabaseManager class implements the Singleton pattern to manage SQLite database connections
