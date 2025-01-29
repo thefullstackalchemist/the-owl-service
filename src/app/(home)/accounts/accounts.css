@@ -1,0 +1,17 @@
+.accounts-card {
+  height: 10em;
+  width: 20em;
+}
+
+.accounts-cards {
+  max-height: 100%;
+  box-sizing: border-box;
+  overflow: auto;
+}
+
+.add-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
